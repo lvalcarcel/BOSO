@@ -98,8 +98,7 @@ Default is False.}
 \item{TH_metric}{is the ratio over one that the information criteria must 
 increase to be STOP. Default is 1e-2.}
 
-\item{indexSelected}{array of pre-selected variables, use with caution.
-WARNING: use with care.}
+\item{indexSelected}{array of pre-selected variables. WARNING: debug feature.}
 }
 \description{
 Bonjour

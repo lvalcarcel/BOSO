@@ -67,6 +67,7 @@
 #'   
 #' @description Bonjour
 #'
+#' @import Matrix
 #' @author Luis V. Valcarcel
 #' @export BOSO.multiple.warmstart
 
@@ -85,51 +86,6 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
   }
   
 
-  # rm (list = ls())
-  # setwd("D:/PhD/3 - Machine Learning MILP/LinearRegression-2021-02/R_package/BOSO R/BOSO")
-  # # source("R/BOSO_multiple_ColdStart.R")
-  # # source("R/BOSO_multiple_WarmStart.R")
-  # source("R/utils.R")
-  # sim.xy <- readRDS("D:/PhD/3 - Machine Learning MILP/Datasets/Hastie/RDSfiles/sim.xy.n500.p100.beta1.rho0.35.snr1.22.rds")
-  # sim.xy <- sim.xy[[1]]
-  # sim.xy$x <- sim.xy$x[,c(1,2,25,26,49,50,51,53,70,73,74,75,99, 100)]
-  # sim.xy$xval <- sim.xy$xval[,c(1,2,25,26,49,50,51,53,70,73,74,75,99, 100)]
-  # 
-  # intercept <- F
-  # standardize <- F
-  # 
-  # sim.xy$betas <- c(0, sim.xy$beta)
-  # sim.xy$betas <- c(0, sim.xy$beta[c(1,2,25,26,49,50,51,53,70,73,74,75,99, 100)])
-  # 
-  # 
-  # x <- sim.xy$x
-  # y <- sim.xy$y
-  # xval <- sim.xy$xval
-  # yval <- sim.xy$yval
-  # 
-  # metric = 'eBIC'
-  # nlambda=50
-  # nlambda.blocks = 10
-  # lambda.min.ratio=ifelse(nrow(x)<ncol(x),0.01,0.0001)
-  # lambda=NULL
-  # # intercept=T
-  # # standardize=F
-  # dfmin = 0
-  # dfmax = NULL
-  # maxVarsBlock = 10
-  # costErrorVal = 1
-  # costErrorTrain = 0
-  # costVars = 0
-  # Threads=0
-  # timeLimit = 180
-  # verbose = 5
-  # TH_metric <- 1e-3
-  # p.metric <- ncol(x)
-  # n.metric <- nrow(x)
-  
-  
-  
-  
   # Set up data
   x = as.matrix(x)
   y = as.numeric(y)
@@ -140,17 +96,12 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
   
   # standarze?
   if (standardize) {
-    # standardize using xtrain and xval
     obj = standardize(x, y, intercept=T, normalize = T)
-    # obj = standardize(rbind(x, xval), c(y, yval), intercept=T, normalize = T)
     x = obj$x
     y = obj$y
     mx = obj$mx
     my = obj$my
     sx = obj$sx
-    # obj = standardize(x, y, mx=mx, my=my, sx=sx)
-    # x = obj$x
-    # y = obj$y
     obj = standardize(xval, yval, mx=mx, my=my, sx=sx)
     xval = obj$x
     yval = obj$y
@@ -179,11 +130,9 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
   }
   
   # Generate the intercept in the x matrix if necessary 
-  # if ((sum((x[,1] - 1)*(x[,1] - 1)) + sum((xval[,1] - 1)*(xval[,1] - 1))) > 1e-2) {
   x <- cbind(1, x)
   xval <- cbind(1, xval)
-  # }
-  
+
   
   ## Generate the index for constraints ###
   nFeatures <- dim(x)[2]
@@ -218,7 +167,7 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
   
   
   ## Define the constraints ###
-  A <- Matrix::Matrix(data = 0, nrow = nCon, ncol = nVar,sparse = T)
+  A <- Matrix(data = 0, nrow = nCon, ncol = nVar,sparse = T)
   rhs <- rep(0, nCon)
   sense <- rep("", nCon)
   

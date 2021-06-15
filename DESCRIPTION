@@ -1,7 +1,8 @@
 Package: BOSO
 Type: Package
 Title: Bilevel Optimization Selector Operator
-Version: 0.0.0.9014
+Version: 0.0.0.9015
+Date: 2021-06-15
 Authors@R: c(person("Luis V. Valcarcel", "Developer", role = c("aut", "cre"),
                      email = "lvalcarcel@tecnun.es"),
               person("Edurne San Jose-Eneriz", "User", role = "aut"),
@@ -12,7 +13,10 @@ Authors@R: c(person("Luis V. Valcarcel", "Developer", role = c("aut", "cre"),
               person("Francisco J. Planes", "Developer", role = c("aut","ctb"),
                      email = "fplanes@tecnun.es"))
 Description: A novel feature selection algorithm for linear regression called BOSO 
-        (Bilevel Optimization Selector Operator).
+        (Bilevel Optimization Selector Operator). The main contribution is the 
+        use a bilevel optimization problem to select the variables in the 
+        training problem that minimizes the error in the validation set.
+SystemRequirements: IBM ILOG CPLEX (>= 12.1)
 Depends:
     R (>= 3.0),
 Imports:
@@ -20,7 +24,7 @@ Imports:
     Matrix,
     MASS,
     psych
-License: Artistic-2.0
+License: GPL-3 | file LICENSE
 LazyData: T
 RoxygenNote: 7.1.1
 Encoding: UTF-8

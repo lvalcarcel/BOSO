@@ -79,49 +79,6 @@ BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
                                    Threads=0, timeLimit = 1e75, verbose = F,
                                    TH_metric = 1e-2) {
   
-  # rm (list = ls())
-  # setwd("D:/PhD/3 - Machine Learning MILP/LinearRegression-2021-02/R_package/BOSO R/BOSO")
-  # # source("R/BOSO_multiple_ColdStart.R")
-  # # source("R/BOSO_multiple_WarmStart.R")
-  # source("R/utils.R")
-  # sim.xy <- readRDS("D:/PhD/3 - Machine Learning MILP/Datasets/Hastie/RDSfiles/sim.xy.n500.p100.beta1.rho0.35.snr6.00.rds")
-  # sim.xy <- sim.xy[[1]]
-  # sim.xy$x <- sim.xy$x[,c(1,2,25,26,49,50,51,53,70,73,74,75,99, 100)]
-  # sim.xy$xval <- sim.xy$xval[,c(1,2,25,26,49,50,51,53,70,73,74,75,99, 100)]
-  # 
-  # intercept <- F
-  # standardize <- F
-  # 
-  # sim.xy$betas <- c(0, sim.xy$beta)
-  # 
-  # 
-  # x <- sim.xy$x
-  # y <- sim.xy$y
-  # xval <- sim.xy$xval
-  # yval <- sim.xy$yval
-  # 
-  # metric = 'eBIC'
-  # nlambda=50
-  # nlambda.blocks = 10
-  # lambda.min.ratio=ifelse(nrow(x)<ncol(x),0.01,0.0001)
-  # lambda=NULL
-  # # intercept=T
-  # # standardize=F
-  # dfmin = 0
-  # dfmax = NULL
-  # maxVarsBlock = 10
-  # costErrorVal = 1
-  # costErrorTrain = 0
-  # costVars = 0
-  # Threads=0
-  # timeLimit = 1e75
-  # verbose = 5
-  # TH_metric <- 1e-3
-  # p.metric <- ncol(x)
-  # n.metric <- nrow(x)
-  
-  # TH_metric = 1e-2
-  
   # Check for cplexAPI package
   if (!requireNamespace('cplexAPI', quietly = T)) {
     stop("Package cplexAPI not installed (required here)!")
@@ -138,17 +95,12 @@ BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
   
   # standarze?
   if (standardize) {
-    # standardize using xtrain and xval
     obj = standardize(x, y, intercept=T, normalize = T)
-    # obj = standardize(rbind(x, xval), c(y, yval), intercept=T, normalize = T)
     x = obj$x
     y = obj$y
     mx = obj$mx
     my = obj$my
     sx = obj$sx
-    # obj = standardize(x, y, mx=mx, my=my, sx=sx)
-    # x = obj$x
-    # y = obj$y
     obj = standardize(xval, yval, mx=mx, my=my, sx=sx)
     xval = obj$x
     yval = obj$y
@@ -182,7 +134,6 @@ BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
     k = as.integer(numVarArray[kk])
     if (verbose) {
       cat(paste0(metric, ':\t Force ',k,'\t nVar: ',dim(x)[2]))
-      # cat(paste0('\t subproblem ', round(kk/length(numVarArray)*100),'% '))
     }
     
     result$time[kk] <- Sys.time()
@@ -219,13 +170,7 @@ BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
         break
     }
   }
-  
-  # object <- result
-  # cbind(sim.xy$betas, result$betas[,which.min(result$score)])
-  # table(real = sim.xy$betas!=0, BOSO = result$betas[,which.min(result$score)]!=0)
-  # apply(result$errorVal,2,function(x)sum(x*x))
-  # result$score
-  
+
   return(result)
 }
 
@@ -296,6 +241,7 @@ BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
 #'   
 #' @description Bonjour
 #'
+#' @import Matrix
 #' @author Luis V. Valcarcel
 #' @export BOSO.single
 
@@ -344,7 +290,6 @@ BOSO.single = function(x, y, xval, yval, nlambda=100,
   
   # Generate the lambda array if necessary
   if (is.null(lambda)){
-    # lambda_max <- norm(t(x)%*%y, "I")/nrow(x)
     lambda_max <- max( abs(t(y - mean(y)*(1-mean(y))) %*% x ) )/ n #lasso
     lambda_min <- lambda_max * lambda.min.ratio
     lambda <- exp(seq(log(lambda_max*1e3), log(lambda_min), length.out = nlambda)) # lambda_max from ridge, lambda_min from lasso
@@ -354,11 +299,9 @@ BOSO.single = function(x, y, xval, yval, nlambda=100,
   }
   
   # Generate the intercept in the x matrix if necessary 
-  # if ((sum((x[,1] - 1)*(x[,1] - 1)) + sum((xval[,1] - 1)*(xval[,1] - 1))) > 1e-2) {
   x <- cbind(1, x)
   xval <- cbind(1, xval)
-  # }
-  
+
   
   ## Generate the index for constraints ###
   nFeatures <- dim(x)[2]
@@ -393,7 +336,7 @@ BOSO.single = function(x, y, xval, yval, nlambda=100,
   
   
   ## Define the constraints ###
-  A <- Matrix::Matrix(data = 0, nrow = nCon, ncol = nVar,sparse = T)
+  A <- Matrix(data = 0, nrow = nCon, ncol = nVar,sparse = T)
   rhs <- rep(0, nCon)
   sense <- rep("", nCon)
   
