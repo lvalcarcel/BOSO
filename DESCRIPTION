@@ -1,0 +1,27 @@
+Package: BOSO
+Type: Package
+Title: Bilevel Optimization Selector Operator
+Version: 0.0.0.9014
+Authors@R: c(person("Luis V. Valcarcel", "Developer", role = c("aut", "cre"),
+                     email = "lvalcarcel@tecnun.es"),
+              person("Edurne San Jose-Eneriz", "User", role = "aut"),
+              person("Xabier Cendoya", "Developer", role = c("aut","ctb")),
+              person("Angel Rubio", "User", role = c("aut","ctb")),
+              person("Xabier Agirre", "User", role = "aut"),
+              person("Felipe Prósper", "User", role = "aut"),
+              person("Francisco J. Planes", "Developer", role = c("aut","ctb"),
+                     email = "fplanes@tecnun.es"))
+Description: A novel feature selection algorithm for linear regression called BOSO 
+        (Bilevel Optimization Selector Operator).
+Depends:
+    R (>= 3.0),
+Imports:
+    cplexAPI,
+    Matrix,
+    MASS,
+    psych
+License: Artistic-2.0
+LazyData: T
+RoxygenNote: 7.1.1
+Encoding: UTF-8
+
