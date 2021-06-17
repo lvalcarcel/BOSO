@@ -10,9 +10,9 @@ BOSO.multiple.coldstart(
   xval,
   yval,
   nlambda = 100,
-  metric = "eBIC",
-  n.metric = NULL,
-  p.metric = NULL,
+  IC = "eBIC",
+  n.IC = NULL,
+  p.IC = NULL,
   lambda.min.ratio = ifelse(nrow(x) < ncol(x), 0.01, 1e-04),
   lambda = NULL,
   intercept = TRUE,
@@ -25,7 +25,7 @@ BOSO.multiple.coldstart(
   Threads = 0,
   timeLimit = 1e+75,
   verbose = F,
-  TH_metric = 0.01
+  TH_IC = 0.001
 )
 }
 \arguments{
@@ -43,11 +43,11 @@ column or a vector, with 'n' elements.}
 
 \item{nlambda}{The number of lambda values. Default is 100.}
 
-\item{metric}{information criteria to be used. Default is 'eBIC'.}
+\item{IC}{information criterion to be used. Default is 'eBIC'.#'}
 
-\item{n.metric}{number of events for the information criteria.}
+\item{n.IC}{number of events for the information criterion.}
 
-\item{p.metric}{number of initial variables for the  information criteria.}
+\item{p.IC}{number of initial variables for the  information criterion.}
 
 \item{lambda.min.ratio}{Smallest value for lambda, as a fraction of 
 lambda.max, the (data derived) entry value.}
@@ -81,19 +81,20 @@ the formulation presented in the main article.}
 WARNING: use with care, changing this value changes the formulation 
 presented in the main article.}
 
-\item{Threads}{CPLEX parameter, number of cores that cplex is allowed to use.
-Default is 0 (automatic).}
+\item{Threads}{CPLEX parameter, number of cores that IBM ILOG CPLEX is 
+allowed to use. Default is 0 (automatic).}
 
 \item{timeLimit}{CPLEX parameter, time limit per problem provided to CPLEX.
 Default is 1e75 (infinite time).}
 
 \item{verbose}{print progress. Default is FALSE.}
 
-\item{TH_metric}{is the ratio over one that the information criteria must 
-increase to be STOP. Default is 1e-2.}
+\item{TH_IC}{is the ratio over one that the information criterion must 
+increase to be STOP. Default is 1e-3.}
 }
 \description{
-Bonjour
+Function to run a single block BOSO problem, generating for 
+each K a different CPLEX object.
 }
 \details{
 Compute the BOSO for use one block. This function calls ILOG IBM CPLEX with 

@@ -1,3 +1,5 @@
+V0.0.9016: Rename variables and genereate Vignette.
+
 V0.0.9015: Changes in the docummentatio and prepare package for GIT.
 
 V0.0.9014: Add the threshold as an input, due to the increase in computation 

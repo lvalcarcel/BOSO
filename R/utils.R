@@ -98,41 +98,31 @@ standardize = function(x, y, intercept=T, normalize=T, mx=NULL, my=NULL, sx=NULL
 
 #' Centering and scaling convenience function
 #' 
-#' @param object Fitted 'BOSO' or 'BOSO.single' object
+#' @param object Fitted 'BOSO' or object
 #' 
 #' @param metric information criteria to be used
 #' 
-#' @param n Fitted 'BOSO' or 'BOSO.single' object
+#' @param n Fitted 'BOSO' object
 #' 
-#' @param p Fitted 'BOSO' or 'BOSO.single' object
+#' @param p Fitted 'BOSO'  object
 #' 
 
 #' @rdname InternalFunctions
-BICscoreCalculation = function(object, metric, n, p) {
-  if (missing(metric)) stop('Missing metric information criteria for calculation in BOSO')
+ICscoreCalculation = function(object, IC, n, p) {
+  if (missing(IC)) stop('Missing IC information criteria for calculation in BOSO')
   if (missing(n)) n = object$n
   if (missing(p)) p = object$p
   
   # set penalization for information criteria (eBIC)
   g <- ifelse(p > n, 0.5, 0)
   
-  # if (metric == "AIC"){ 
-  #   penalization <- 2
-  # } else if (metric == "BIC"){
-  #   penalization <- log(n)
-  # } else if (metric == "eBIC"){
-  #   penalization <- NULL #selected later on, it depends on the number of active variables
-  # } else {
-  #   stop("Information criteria is not known")
-  # }
-  
   # check all the input
   if(class(object)!="BOSO") {
-    stop("BICscoreCalculation is a hidden function to work with BOSO objects")
+    stop("ICscoreCalculation is a hidden function to work with BOSO objects")
   }
   
   k <- ifelse(object$dfmin == object$dfmax, object$dfmin, NULL)
-  if(is.null(k)) {stop("BICscoreCalculation is a hidden function to work with a fixed k")}
+  if(is.null(k)) {stop("ICscoreCalculation is a hidden function to work with a fixed k")}
   
   x = as.matrix(object$x)
   y = as.numeric(object$y)
@@ -178,17 +168,11 @@ BICscoreCalculation = function(object, metric, n, p) {
     SSE <- sum(errorVal * errorVal)
   }
   
-  # if (metric=="AIC") { # eBIC
-  #   score <- n*log(SSE/n) + log(n)*df + 2*g*log(choose(p,k));
-  # } else if (metric=="AIC"){
-  #   score <- penalization*df + n*log(SSE/(n));
-  # }
-  
-  if (metric == "AIC"){ 
+  if (IC == "AIC"){ 
     score <- n*log(SSE/n) + 2*df
-  } else if (metric == "BIC"){
+  } else if (IC == "BIC"){
     score <- n*log(SSE/n) + log(n)*df
-  } else if (metric == "eBIC"){
+  } else if (IC == "eBIC"){
     score <- n*log(SSE/n) + log(n)*df + 2*g*log(choose(p,k))
   } else {
     stop("Information criteria is not known")

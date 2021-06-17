@@ -32,9 +32,9 @@
 #' lambda.min.ratio. Supplying a value of lambda overrides this. 
 #' WARNING: use with care
 #' 
-#' @param metric information criteria to be used. Default is 'eBIC'.
-#' @param n.metric number of events for the information criteria. 
-#' @param p.metric number of initial variables for the  information criteria.
+#' @param IC information criterion to be used. Default is 'eBIC'.
+#' @param n.IC number of events for the information criterion. 
+#' @param p.IC number of initial variables for the  information criterion.
 #' 
 #' @param dfmin Minimum number of variables to be included in the problem. The 
 #' intercept is not included in this number. Default is 0.
@@ -62,29 +62,41 @@
 #' 
 #' @param verbose print progress. Default is FALSE
 #' 
-#' @param TH_metric is the ratio over one that the information criteria must 
-#' increase to be STOP. Default is 1e-2.
+#' @param TH_IC is the ratio over one that the information criterion must 
+#' increase to be STOP. Default is 1e-3.
 #'   
-#' @description Bonjour
+#' @description Function to run a single block BOSO problem, generating one 
+#' CPLEX object and re-runing it for the different K.
 #'
 #' @import Matrix
+#' @import methods
 #' @author Luis V. Valcarcel
 #' @export BOSO.multiple.warmstart
 
 BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
-                                   metric = "eBIC", n.metric = NULL, p.metric = NULL,
+                                   IC = "eBIC", n.IC = NULL, p.IC = NULL,
                                    lambda.min.ratio=ifelse(nrow(x)<ncol(x),0.01,0.0001),
                                    lambda=NULL, intercept=TRUE, standardize=FALSE,
                                    dfmin = 0, dfmax = NULL,
                                    costErrorVal = 1, costErrorTrain = 0, costVars = 0,
                                    Threads=0, timeLimit = 1e75, verbose = F,
-                                   TH_metric = 1e-2) {
+                                   TH_IC = 1e-3) {
   
   # Check for cplexAPI package
   if (!requireNamespace('cplexAPI', quietly = T)) {
     stop("Package cplexAPI not installed (required here)!")
   }
   
+  # Check the inputs
+  if(!is(x,"matrix") & !is(x,"Matrix")){stop("input x must be a matrix or a Matrix class")}
+  if(!is(y,"numeric") & !is(y,"matrix") & !is(y,"array")){stop("input y must be numeric")}
+  if(!is(xval,"matrix") & !is(xval,"Matrix")){stop("input xval must be a matrix or a Matrix class")}
+  if(!is(yval,"numeric") & !is(yval,"matrix") & !is(yval,"array")){stop("input yval must be numeric")}
+  if(!is(IC,"character")){stop("information criterion metric must be character")}
+  if(!is(nlambda,"numeric")){stop("nlambda must be numeric")}
+  if(!is(lambda.min.ratio,"numeric")){stop("lambda.min.ratio must be numeric")}
+  if(!is(nlambda,"numeric")){stop("nlambda must be numeric")}
+  if(!is(TH_IC,"numeric")){stop("TH_IC must be numeric")}
 
   # Set up data
   x = as.matrix(x)
@@ -233,8 +245,6 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
   }
   
   
-  
-  
   ## Solve the problem using cplexAPI
   
   # Open a CPLEX environment
@@ -335,17 +345,6 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
   cplexAPI::setIntParmCPLEX(env = env, parm = cplexAPI::CPXPARAM_MIP_Limits_CutPasses, value = 1 )
   cplexAPI::setIntParmCPLEX(env = env, parm = cplexAPI::CPXPARAM_MIP_Strategy_RINSHeur, value = 100 )
   
-  # # set the apropiate k
-  # cplexAPI::chgRhsCPLEX(env = env,
-  #                       lp = prob,
-  #                       nrows = 2,
-  #                       ind = Eq3-1,
-  #                       val = c(5,5))
-  # cplexAPI::tuneParmCPLEX(env = env, lp = prob)
-  
-  # cplexAPI::getChgParmCPLEX(env = env)
-  # cplexAPI::writeParmCPLEX(env = env, fname = "D:/PhD/3 - Machine Learning MILP/LinearRegression-2021-02/R_package/V2/parameters.txt")
-  
   
   # solve for each K ####
   numVarArray <- seq(0,dfmax)
@@ -368,8 +367,7 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
     # print(cplexAPI::getNumMIPstartsCPLEX(env = env, lp = prob))
     k = as.integer(numVarArray[kk])
     if (verbose) {
-      cat(paste0(metric, ':\t Force ',k,'\t nVar: ',dim(x)[2]))
-      # cat(paste0('\t subproblem ', round(kk/length(numVarArray)*100),'% '))
+      cat(paste0(IC, ':\t Force ',k,'\t nVar: ',dim(x)[2]))
     }
     
     result$time[kk] <- cplexAPI::getTimeCPLEX(env = env)
@@ -387,9 +385,6 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
     
     # Retrieve solution after optimization
     sol.cplexAPI <- cplexAPI::solutionCPLEX(env = env, lp = prob)
-    # mipStart.cplexAPI <- as.integer(0 : (cplexAPI::getNumMIPstartsCPLEX(env = env, lp = prob)-1))
-    # mipStart.cplexAPI <- lapply(mipStart.cplexAPI, function(x){cplexAPI::getMIPstartsCPLEX(env = env, lp = prob, begin = as.integer(x), end = as.integer(x))})
-    # mipStart.cplexAPI <- cplexAPI::getMIPstartsCPLEX(env = env, lp = prob, begin = 0, end = as.integer(cplexAPI::getNumMIPstartsCPLEX(env = env, lp = prob)-1))
     sol.cplexAPI$status <- cplexAPI::status_codeCPLEX(env, sol.cplexAPI$lpstat)
     sol.cplexAPI$indexVar <- list(betas = betas,
                                   Zbetas = Zbetas,
@@ -427,18 +422,18 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
     result$errorVal[,kk] <- yval - predict.BOSO(obj, obj$xval) 
     result$errorTrain[,kk] <- y - predict.BOSO(obj, obj$x)
     result$lambda.selected[kk] <- obj$lambda.selected
-    result$score[kk] <- BICscoreCalculation(obj, metric, n.metric, p.metric)
+    result$score[kk] <- ICscoreCalculation(obj, IC, n.IC, p.IC)
     
     
     if (verbose){
-      cat(paste0('\t',metric,'=', round(result$score[kk],2),
-                 ' \t',metric,'_min= ', round(min(result$score[1:kk]),2),'\tElapsed time = ', round(result$time[kk],3), '\n'))
+      cat(paste0('\t',IC,'=', round(result$score[kk],2),
+                 ' \t',IC,'_min= ', round(min(result$score[1:kk]),2),'\tElapsed time = ', round(result$time[kk],3), '\n'))
     } #else (verbose){
       #cat('\n')
     #}
     
     if (kk>1){
-      if (result$score[kk] > (min(result$score[1:(kk-1)]) + abs(min(result$score[1:(kk-1)]))*TH_metric))
+      if (result$score[kk] > (min(result$score[1:(kk-1)]) + abs(min(result$score[1:(kk-1)]))*TH_IC))
         break
     }
   }
@@ -447,18 +442,5 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
   cplexAPI::delProbCPLEX(env, prob)
   cplexAPI::closeEnvCPLEX(env)
   
-  # object <- result
-  # # cbind(sim.xy$betas, result$betas[,which.min(result$score)])
-  # table(real = sim.xy$betas!=0, BOSO = result$betas[,which.min(result$score)]!=0)
-  # apply(result$errorVal,2,function(x)sum(x*x))
-  # result$time
-  
   return(result)
 }
-
-
-
-
-
-
-

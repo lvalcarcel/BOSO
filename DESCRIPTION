@@ -1,7 +1,7 @@
 Package: BOSO
 Type: Package
 Title: Bilevel Optimization Selector Operator
-Version: 0.0.0.9015
+Version: 0.0.0.9016
 Date: 2021-06-15
 Authors@R: c(person("Luis V. Valcarcel", "Developer", role = c("aut", "cre"),
                      email = "lvalcarcel@tecnun.es"),
@@ -18,14 +18,18 @@ Description: A novel feature selection algorithm for linear regression called BO
         training problem that minimizes the error in the validation set.
 SystemRequirements: IBM ILOG CPLEX (>= 12.1)
 Depends:
-    R (>= 3.0),
+    R (>= 4.0),
 Imports:
     cplexAPI,
     Matrix,
     MASS,
-    psych
+    methods,
+Suggests: 
+    testthat,
+    bestsubset,
+    glmnet
 License: GPL-3 | file LICENSE
-LazyData: T
+LazyData: true
 RoxygenNote: 7.1.1
 Encoding: UTF-8
 

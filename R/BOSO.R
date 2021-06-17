@@ -1,6 +1,6 @@
 #' BOSO and associates functions
 #'
-#' Compute the BOSO for ust one block. This function calls \code{\link{cplexAPI}}
+#' Compute the BOSO for use one block. This function calls \code{\link{cplexAPI}}
 #' to solve the optimization problem
 #' 
 #'
@@ -27,8 +27,11 @@
 #' 
 #' @param maxVarsBlock maximum number of variables in the block strategy.
 #' 
-#' @param metric information criteria to be used. Default is 'eBIC'.
+#' @param IC information criterion to be used. Default is 'eBIC'.
 #' 
+#' @param IC.blocks information criterion to be used in the block strategy.
+#' Default is the same as IC, but eBIC uses BIC for the block strategy.
+#'  
 #' @param nlambda The number of lambda values. Default is 100.
 #' 
 #' @param nlambda.blocks The number of lambda values in the block strategy part. 
@@ -54,13 +57,14 @@
 #' WARNING: use with care, changing this value changes the formulation 
 #' presented in the main article.
 #' 
-#' @param Threads CPLEX parameter, number of cores that cplex is allowed to use.
+#' @param Threads CPLEX parameter, number of cores that CPLEX is allowed to use.
 #' Default is 0 (automatic).
 #' 
 #' @param timeLimit CPLEX parameter, time limit per problem provided to CPLEX.
 #' Default is 1e75 (infinite time).
 #' 
-#' @param verbose print progress. Default is FALSE.
+#' @param verbose print progress, different levels: 1) print simple progress. 
+#' 2) print result of blocks. 3) print each k in blocks Default is FALSE.
 #' 
 #' @param seed set seed for random number generator for the block strategy. 
 #' Default is system default.
@@ -68,17 +72,19 @@
 #' @param warmstart warmstart for CPLEX or use a different problem for each k. 
 #' Default is False.
 #' 
-#' @param TH_metric is the ratio over one that the information criteria must 
-#' increase to be STOP. Default is 1e-2.
+#' @param TH_IC is the ratio over one that the information criterion must 
+#' increase to be STOP. Default is 1e-3.
 #' 
 #' @param indexSelected array of pre-selected variables. WARNING: debug feature.
 #' 
-#' @description Bonjour
+#' @description Fit a ridge linear regression by a feature selection model 
+#' conducted by BOSO MILP. The package cplexAPI is neccesary to run it.
 #'
 #' @author Luis V. Valcarcel
 #' @export BOSO
 
-BOSO = function(x, y, xval, yval, metric = 'eBIC',
+BOSO = function(x, y, xval, yval, 
+                IC = 'eBIC', IC.blocks = NULL,
                 nlambda=100, nlambda.blocks = 10,
                 lambda.min.ratio=ifelse(nrow(x)<ncol(x),0.01,0.0001),
                 lambda=NULL, intercept=TRUE, standardize=TRUE,
@@ -88,7 +94,7 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
                 Threads=0, timeLimit = 1e75, verbose = F,
                 seed = NULL,
                 warmstart = F,
-                TH_metric = 1e-2,
+                TH_IC = 1e-3,
                 indexSelected = NULL)  {
   
   # Check for cplexAPI package
@@ -96,46 +102,19 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
     stop("Package cplexAPI not installed (required here)!")
   }
   
-  # rm (list = ls())
-  # setwd("D:/PhD/3 - Machine Learning MILP/LinearRegression-2021-02/R_package/BOSO R/BOSO")
-  # source("R/BOSO_multiple_ColdStart.R")
-  # source("R/BOSO_multiple_WarmStart.R")
-  # source("R/utils.R")
-  # sim.xy <- readRDS("D:/PhD/3 - Machine Learning MILP/Datasets/Hastie/RDSfiles/sim.xy.n500.p100.beta2.rho0.00.snr0.05.rds")
-  # sim.xy <- sim.xy[[1]]
-  # 
-  # intercept <- F
-  # standardize <- F
-  # warmstart <- T
-  # 
-  # if (intercept|standardize) {
-  #   sim.xy$betas <- c(1, sim.xy$beta)
-  # } else
-  #   sim.xy$betas <- sim.xy$beta
-  # 
-  # 
-  # x <- sim.xy$x
-  # y <- sim.xy$y
-  # xval <- sim.xy$xval
-  # yval <- sim.xy$yval
-  # 
-  # metric = 'eBIC'
-  # nlambda=100
-  # nlambda.blocks = 10
-  # lambda.min.ratio=ifelse(nrow(x)<ncol(x),0.01,0.0001)
-  # lambda=NULL
-  # # intercept=T
-  # # standardize=F
-  # dfmax = NULL
-  # maxVarsBlock = 5
-  # costErrorVal = 1
-  # costErrorTrain = 0
-  # costVars = 0
-  # Threads=0
-  # timeLimit = 1e75
-  # verbose = 5
-  # seed = NULL
-  # TH_metric <- 1e-3
+  # Check the inputs
+  if(!is(x,"matrix") & !is(x,"Matrix")){stop("input x must be a matrix or a Matrix class")}
+  if(!is(y,"numeric") & !is(y,"matrix") & !is(y,"array")){stop("input y must be numeric")}
+  if(!is(xval,"matrix") & !is(xval,"Matrix")){stop("input xval must be a matrix or a Matrix class")}
+  if(!is(yval,"numeric") & !is(yval,"matrix") & !is(yval,"array")){stop("input yval must be numeric")}
+  if(!is(IC,"character")){stop("information criterion metric must be character")}
+  if(!is(nlambda,"numeric")){stop("nlambda must be numeric")}
+  if(!is(nlambda.blocks,"numeric")){stop("nlambda.blocks must be numeric")}
+  if(!is(lambda.min.ratio,"numeric")){stop("lambda.min.ratio must be numeric")}
+  if(!is(nlambda,"numeric")){stop("nlambda must be numeric")}
+  if(!is(maxVarsBlock,"numeric")){stop("maxVarsBlock must be numeric")}
+  if(!is(TH_IC,"numeric")){stop("TH_IC must be numeric")}
+  
   
   # Set up data ####
   x = as.matrix(x)
@@ -149,16 +128,12 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
   # standarze?
   if (standardize) {
     # standardize using xtrain and xval
-    # obj = standardize(rbind(x, xval), c(y, yval), intercept=T, normalize = T)
     obj = standardize(x, y, intercept=T, normalize = T)
     x = obj$x
     y = obj$y
     mx = obj$mx
     my = obj$my
     sx = obj$sx
-    # obj = standardize(x, y, mx=mx, my=my, sx=sx)
-    # x = obj$x
-    # y = obj$y
     obj = standardize(xval, yval, mx=mx, my=my, sx=sx)
     xval = obj$x
     yval = obj$y
@@ -190,8 +165,9 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
   }
   
   # if eBIC, set BIC for blocks
-  metric.block <- ifelse(metric=="eBIC", "BIC", metric)
-  
+  if (is.null(IC.blocks)) {
+    IC.blocks <- ifelse(IC=="eBIC", "BIC", IC)
+  }
   
   ## Separate data in packages of with a maximum size and perform block strategy ####
   data.raw <- list(x = x, y = y, xval = xval, yval = yval)
@@ -209,9 +185,6 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
   numIter <- 0
   indexSelectedIter <- list()
   
-  
-  # maxVarsBlock = 10
-  # indexSelected <- 1:85
   
   while (ContinueBlocks & length(indexSelected)>maxVarsBlock*1.5){
     numIter <- numIter+1
@@ -233,7 +206,7 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
       # i = 1
       p.block <- length(idx[[i]])
       numVarArray <- seq(0,p.block)
-
+      
       # subset of variables from the block strategy
       x = data.raw$x[,idx[[i]]]
       xval = data.raw$xval[,idx[[i]]]
@@ -252,8 +225,8 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
                                                 costErrorVal = costErrorVal, costErrorTrain = costErrorVal, 
                                                 costVars = costVars,
                                                 Threads=Threads, timeLimit = timeLimit, verbose = max(verbose-2,0),
-                                                metric = metric.block, n.metric = n+nval, p.metric = p,
-                                                TH_metric = TH_metric)
+                                                IC = IC.blocks, n.IC = n+nval, p.IC = p,
+                                                TH_IC = TH_IC)
       } else {
         # cat("\ncold start\n")
         result.block <- BOSO.multiple.coldstart(x = x, y = y, xval = xval, yval = yval,
@@ -264,8 +237,8 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
                                                 costErrorVal = costErrorVal, costErrorTrain = costErrorVal, 
                                                 costVars = costVars,
                                                 Threads=Threads, timeLimit = timeLimit, verbose = max(verbose-2,0),
-                                                metric = metric.block, n.metric =  n+nval, p.metric = p,
-                                                TH_metric = TH_metric)
+                                                IC = IC.blocks, n.IC =  n+nval, p.IC = p,
+                                                TH_IC = TH_IC)
       }
       
       if (nrow(result.block$betas)>length(idx[[i]])) {result.block$betas <- result.block$betas[-1,]}
@@ -289,8 +262,8 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
     } else if (numIter>2) {
       if(length(indexSelectedIter[[numIter]])<length(indexSelectedIter[[numIter-1]])){
         ContinueBlocks = T
-      } else if (length(intersect(indexSelected,indexSelectedIter[[numIter-1]]))==length(indexSelected) &
-                 length(intersect(indexSelected,indexSelectedIter[[numIter-2]]))==length(indexSelected)){
+      } else if (length(union(indexSelected,indexSelectedIter[[numIter-1]]))==length(indexSelected) &
+                 length(union(indexSelected,indexSelectedIter[[numIter-2]]))==length(indexSelected)){
         ContinueBlocks = F
       }
     }
@@ -304,7 +277,7 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
                    y = y,
                    xval = xval,
                    yval = yval, 
-                   metric = metric,
+                   IC = IC,
                    nlambda = nlambda,
                    lambda = lambda,
                    intercept = intercept,
@@ -340,7 +313,6 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
   p.final <- length(indexSelected)
   dfmax <-  ifelse(p.final > dfmax , dfmax, p.final)
   numVarArray <- seq(0,dfmax)
-  # if (!intercept) {numVarArray <- numVarArray[-1]}
   
   # subset of variables from the block strategy
   x = data.raw$x[,indexSelected]
@@ -358,8 +330,8 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
                                             costErrorVal = costErrorVal, costErrorTrain = costErrorVal, 
                                             costVars = costVars,
                                             Threads=Threads, timeLimit = timeLimit, verbose = max(verbose-1,0),
-                                            metric = metric, n.metric = n+nval, p.metric = p,
-                                            TH_metric = TH_metric)
+                                            IC = IC, n.IC = n+nval, p.IC = p,
+                                            TH_IC = TH_IC)
   } else {
     # cat("\ncold start\n")
     result.final <- BOSO.multiple.coldstart(x = x, y = y, xval = xval, yval = yval,
@@ -370,8 +342,8 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
                                             costErrorVal = costErrorVal, costErrorTrain = costErrorVal, 
                                             costVars = costVars,
                                             Threads=Threads, timeLimit = timeLimit, verbose = max(verbose-1,0),
-                                            metric = metric, n.metric =  n+nval, p.metric = p,
-                                            TH_metric = TH_metric)
+                                            IC = IC, n.IC =  n+nval, p.IC = p,
+                                            TH_IC = TH_IC)
   }
   
   
@@ -384,7 +356,7 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
                  y = y,
                  xval = xval,
                  yval = yval, 
-                 metric = metric,
+                 IC = IC,
                  nlambda = nlambda,
                  lambda = lambda,
                  intercept = intercept,
@@ -406,17 +378,5 @@ BOSO = function(x, y, xval, yval, metric = 'eBIC',
   
   class(result) = "BOSO"
   
-  # object <- result
-  # cbind(sim.xy$betas, coef.BOSO(result))
-  # table(real = sim.xy$betas!=0, BOSO = coef.BOSO(result)!=0)
-  # c(object$lambda.selected, which(lambda==object$lambda.selected))
-  # 
-  # c(result.final$time, sum(result.final$time[result.final$time<1e5]))
-  
   return(result)
 }
-
-
-
-
-

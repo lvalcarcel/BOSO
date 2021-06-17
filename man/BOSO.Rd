@@ -9,7 +9,8 @@ BOSO(
   y,
   xval,
   yval,
-  metric = "eBIC",
+  IC = "eBIC",
+  IC.blocks = NULL,
   nlambda = 100,
   nlambda.blocks = 10,
   lambda.min.ratio = ifelse(nrow(x) < ncol(x), 0.01, 1e-04),
@@ -26,7 +27,7 @@ BOSO(
   verbose = F,
   seed = NULL,
   warmstart = F,
-  TH_metric = 0.01,
+  TH_IC = 0.001,
   indexSelected = NULL
 )
 }
@@ -43,7 +44,10 @@ validation partition. Its recommended to be class "matrix".}
 \item{yval}{Response variable for the validation dataset. A matrix of one 
 column or a vector, with 'n' elements.}
 
-\item{metric}{information criteria to be used. Default is 'eBIC'.}
+\item{IC}{information criterion to be used. Default is 'eBIC'.}
+
+\item{IC.blocks}{information criterion to be used in the block strategy.
+Default is the same as IC, but eBIC uses BIC for the block strategy.}
 
 \item{nlambda}{The number of lambda values. Default is 100.}
 
@@ -81,13 +85,14 @@ the formulation presented in the main article.}
 WARNING: use with care, changing this value changes the formulation 
 presented in the main article.}
 
-\item{Threads}{CPLEX parameter, number of cores that cplex is allowed to use.
+\item{Threads}{CPLEX parameter, number of cores that CPLEX is allowed to use.
 Default is 0 (automatic).}
 
 \item{timeLimit}{CPLEX parameter, time limit per problem provided to CPLEX.
 Default is 1e75 (infinite time).}
 
-\item{verbose}{print progress. Default is FALSE.}
+\item{verbose}{print progress, different levels: 1) print simple progress. 
+2) print result of blocks. 3) print each k in blocks Default is FALSE.}
 
 \item{seed}{set seed for random number generator for the block strategy. 
 Default is system default.}
@@ -95,16 +100,17 @@ Default is system default.}
 \item{warmstart}{warmstart for CPLEX or use a different problem for each k. 
 Default is False.}
 
-\item{TH_metric}{is the ratio over one that the information criteria must 
-increase to be STOP. Default is 1e-2.}
+\item{TH_IC}{is the ratio over one that the information criterion must 
+increase to be STOP. Default is 1e-3.}
 
 \item{indexSelected}{array of pre-selected variables. WARNING: debug feature.}
 }
 \description{
-Bonjour
+Fit a ridge linear regression by a feature selection model 
+conducted by BOSO MILP. The package cplexAPI is neccesary to run it.
 }
 \details{
-Compute the BOSO for ust one block. This function calls \code{\link{cplexAPI}}
+Compute the BOSO for use one block. This function calls \code{\link{cplexAPI}}
 to solve the optimization problem
 }
 \author{

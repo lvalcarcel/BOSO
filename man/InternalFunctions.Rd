@@ -3,7 +3,7 @@
 \name{InternalFunctions}
 \alias{InternalFunctions}
 \alias{standardize}
-\alias{BICscoreCalculation}
+\alias{ICscoreCalculation}
 \alias{Trace}
 \title{BOSO Internal Functions}
 \usage{
@@ -17,18 +17,18 @@ standardize(
   sx = NULL
 )
 
-BICscoreCalculation(object, metric, n, p)
+ICscoreCalculation(object, IC, n, p)
 
 Trace(mat)
 }
 \arguments{
-\item{object}{Fitted 'BOSO' or 'BOSO.single' object}
+\item{object}{Fitted 'BOSO' or object}
+
+\item{n}{Fitted 'BOSO' object}
+
+\item{p}{Fitted 'BOSO'  object}
 
 \item{metric}{information criteria to be used}
-
-\item{n}{Fitted 'BOSO' or 'BOSO.single' object}
-
-\item{p}{Fitted 'BOSO' or 'BOSO.single' object}
 
 \item{matrix}{a numeric matrix}
 }

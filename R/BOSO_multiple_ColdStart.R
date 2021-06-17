@@ -38,9 +38,9 @@
 #' @param dfmax Maximum number of variables to be included in the problem. The 
 #' intercept is not included in this number. Default is min(p,n).
 #' 
-#' @param metric information criteria to be used. Default is 'eBIC'.
-#' @param n.metric number of events for the information criteria. 
-#' @param p.metric number of initial variables for the  information criteria.
+#' @param IC information criterion to be used. Default is 'eBIC'.#'
+#' @param n.IC number of events for the information criterion. 
+#' @param p.IC number of initial variables for the  information criterion.
 #' 
 #' @param costErrorVal Cost of error of the validation set in the objective 
 #' function. Default is 1. WARNING: use with care, changing this value changes 
@@ -54,35 +54,48 @@
 #' WARNING: use with care, changing this value changes the formulation 
 #' presented in the main article.
 #' 
-#' @param Threads CPLEX parameter, number of cores that cplex is allowed to use.
-#' Default is 0 (automatic).
+#' @param Threads CPLEX parameter, number of cores that IBM ILOG CPLEX is 
+#' allowed to use. Default is 0 (automatic).
 #' 
 #' @param timeLimit CPLEX parameter, time limit per problem provided to CPLEX.
 #' Default is 1e75 (infinite time).
 #' 
 #' @param verbose print progress. Default is FALSE.
 #' 
-#' @param TH_metric is the ratio over one that the information criteria must 
-#' increase to be STOP. Default is 1e-2.
+#' @param TH_IC is the ratio over one that the information criterion must 
+#' increase to be STOP. Default is 1e-3.
 #'  
-#' @description Bonjour
+#' @description Function to run a single block BOSO problem, generating for 
+#' each K a different CPLEX object.
 #'
+#' @import methods
 #' @author Luis V. Valcarcel
 #' @export BOSO.multiple.coldstart
 
 BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
-                                   metric = "eBIC", n.metric = NULL, p.metric = NULL,
+                                   IC = "eBIC", n.IC = NULL, p.IC = NULL,
                                    lambda.min.ratio=ifelse(nrow(x)<ncol(x),0.01,0.0001),
                                    lambda=NULL, intercept=TRUE, standardize=FALSE,
                                    dfmin = 0, dfmax = NULL,
                                    costErrorVal = 1, costErrorTrain = 0, costVars = 0,
                                    Threads=0, timeLimit = 1e75, verbose = F,
-                                   TH_metric = 1e-2) {
+                                   TH_IC = 1e-3) {
   
   # Check for cplexAPI package
   if (!requireNamespace('cplexAPI', quietly = T)) {
     stop("Package cplexAPI not installed (required here)!")
   }
+  
+  # Check the inputs
+  if(!is(x,"matrix") & !is(x,"Matrix")){stop("input x must be a matrix or a Matrix class")}
+  if(!is(y,"numeric") & !is(y,"matrix") & !is(y,"array")){stop("input y must be numeric")}
+  if(!is(xval,"matrix") & !is(xval,"Matrix")){stop("input xval must be a matrix or a Matrix class")}
+  if(!is(yval,"numeric") & !is(yval,"matrix") & !is(yval,"array")){stop("input yval must be numeric")}
+  if(!is(IC,"character")){stop("information criterion metric must be character")}
+  if(!is(nlambda,"numeric")){stop("nlambda must be numeric")}
+  if(!is(lambda.min.ratio,"numeric")){stop("lambda.min.ratio must be numeric")}
+  if(!is(nlambda,"numeric")){stop("nlambda must be numeric")}
+  if(!is(TH_IC,"numeric")){stop("TH_IC must be numeric")}
   
   # Set up data
   x = as.matrix(x)
@@ -133,7 +146,7 @@ BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
     # kk <- 1
     k = as.integer(numVarArray[kk])
     if (verbose) {
-      cat(paste0(metric, ':\t Force ',k,'\t nVar: ',dim(x)[2]))
+      cat(paste0(IC, ':\t Force ',k,'\t nVar: ',dim(x)[2]))
     }
     
     result$time[kk] <- Sys.time()
@@ -155,18 +168,18 @@ BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
     result$errorVal[,kk] <- yval - predict.BOSO(obj, xval)
     result$errorTrain[,kk] <- y - predict.BOSO(obj, x)
     result$lambda.selected[kk] <- obj$lambda.selected
-    result$score[kk] <- BICscoreCalculation(obj, metric, n.metric, p.metric)
+    result$score[kk] <- ICscoreCalculation(obj, IC, n.IC, p.IC)
     result$time[kk] <- as.numeric(Sys.time() - result$time[kk])
     
     if (verbose){
-      cat(paste0('\t',metric,'=', round(result$score[kk],2),
-                 ' \t',metric,'_min= ', round(min(result$score[1:kk]),2),'\tElapsed time = ', round(result$time[kk],3), '\n'))
+      cat(paste0('\t',IC,'=', round(result$score[kk],2),
+                 ' \t',IC,'_min= ', round(min(result$score[1:kk]),2),'\tElapsed time = ', round(result$time[kk],3), '\n'))
     } #else {
       #cat('\n')
     #}
     
     if (kk>1){
-      if (result$score[kk] > (min(result$score[1:(kk-1)]) + abs(min(result$score[1:(kk-1)]))*TH_metric))
+      if (result$score[kk] > (min(result$score[1:(kk-1)]) + abs(min(result$score[1:(kk-1)]))*TH_IC))
         break
     }
   }
@@ -544,13 +557,3 @@ BOSO.single = function(x, y, xval, yval, nlambda=100,
   
   return(obj)
 }
-
-
-
-
-
-
-
-
-
-

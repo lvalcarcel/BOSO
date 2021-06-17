@@ -18,7 +18,7 @@ in the *BestSubset* package.
 library(BOSO)
 
 ## Load the data prepared for this test
-sim.xy <- readRDS(system.file('data/high-5.rds', package = "BOSO"))
+load(system.file("data/high-5.rda", package = "BOSO"))
 
 Xtr <- sim.xy$x
 Ytr <- sim.xy$y
@@ -30,7 +30,7 @@ Yval <- sim.xy$yval
 time <- Sys.time()
 obj <- BOSO(x = Xtr, y = Ytr,
             xval = Xval, yval = Yval,
-            metric = 'eBIC',
+            IC = 'eBIC',
             nlambda=100,
             intercept= 0,
             standardize = 0,
