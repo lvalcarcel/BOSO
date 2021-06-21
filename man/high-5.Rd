@@ -1,7 +1,7 @@
 \name{high-5}
 \docType{data}
 \alias{sim.xy}
-\title{Medium setting data}
+\title{High-5 setting data}
 \description{
   Simmulated data for the high-5-sized scenario. It contains the following fields:
   * \code{x} X matrix for training set
