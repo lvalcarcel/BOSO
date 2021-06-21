@@ -259,12 +259,12 @@ sim.master = function(n, p, nval, reg.funs, nrep=50, seed=NULL, verbose=FALSE,
   
   # Save results now (in case of an error that might occur below)
   out = bestsubset:::enlist(err.train,err.val,err.test,err.null,prop,risk,risk.null,nzs,fpos,
-               fneg,F1,opt,sigma,runtime)
+                            fneg,F1,opt,sigma,runtime)
   # if (!is.null(file)) saveRDS(out, file)
-
+  
   # Tune according to validation error, and according to test error
   out = bestsubset:::choose.tuning.params(out)
-
+  
   # Save final results
   out = c(out,list(rho=rho,s=s,beta.type=beta.type,snr=snr,call=this.call))
   class(out) = "sim"
@@ -290,9 +290,10 @@ for (i in 1:length(snr.vec)) {
 
 ```
 
-```{r load_sims, eval=T, echo=F}
+```{r load_sims, eval=TRUE, echo=FALSE}
 
-load(system.file("data/dataSimResultsVignette.rda.rda", package = "BOSO"))
+data("SimResultsVignette",package = "BOSO")
+
 
 ```
 

@@ -18,7 +18,7 @@ in the *BestSubset* package.
 library(BOSO)
 
 ## Load the data prepared for this test
-load(system.file("data/high-5.rda", package = "BOSO"))
+data("high-5", package = "BOSO")
 
 Xtr <- sim.xy$x
 Ytr <- sim.xy$y
