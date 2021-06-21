@@ -1,7 +1,7 @@
 # Introduction to BOSO
 
 
-We present *BOSO*, an R package to perform feature selection in a linea regression problem. It implements a Bilevel Optimization Selector of Operators.
+We present *BOSO*, an R package to perform feature selection in a linear regression problem. It implements a Bilevel Optimization Selector Operator.
 
 ## Installation
 BOSO can be installed from CRAN repository:
@@ -11,7 +11,7 @@ BOSO can be installed from CRAN repository:
 
 ## Introduction
 
-The package package has been prepared to work like glmnet and lasso, presented 
+The package package has been prepared to work like 'glmnet' and 'lasso', presented 
 in the *BestSubset* package.
 
 ``` r
@@ -42,7 +42,7 @@ time <- as.numeric(Sys.time() - time)
 
 `obj` is a BOSO object, which have the following associated functions: 
 
-  - `coef(obj)` returns the coefficients (betas) of the linnear regression.  
+  - `coef(obj)` returns the coefficients (betas) of the linear regression.  
   - `predict(obj, xnew)` returns the predicted outcome with a new X matrix.
 
 

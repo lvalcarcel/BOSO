@@ -1,9 +1,9 @@
 ---
-title: "Introduction to BOSO: Bilevel Optmization Selector of Operators"
+title: "Introduction to BOSO: Bilevel Optimization Selector Operator"
 author: "Luis V. Valcarcel & Xabier Cendoya & Francisco J. Planes"
 date: "`r BiocStyle::doc_date()`"
 abstract: >
-  *BOSO* is an R package to perform a feature selection analysis in a linear regression problem.
+  *BOSO* is an R package to perform feature selection in linear regression models.
   <br>
 vignette: >
   %\VignetteEncoding{UTF-8}
@@ -20,11 +20,11 @@ output:
 ```{r LoadFunctions, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 library(knitr)
 opts_chunk$set(error = FALSE)
-library(BOSO)
+#library(BOSO)
 library(dplyr)
 library(kableExtra)
 library(glmnet)
-library(bestsubset)
+#library(bestsubset)
 library(ggplot2)
 library(ggpubr)
 ```
@@ -40,63 +40,65 @@ BOSO can be installed from CRAN repository:
 install.packages("BOSO")
 ```
 
-Note that it is necessary to have installed IBM ILOG CPLEX, with a version greater than 12.1 and also the *cplexAPI* package, which is used to invoke CPLEX from R environments.
+Note that it is necessary to have  IBM ILOG CPLEX installed, with a version greater than 12.1, and the *cplexAPI* package, which is used to invoke CPLEX from R environment.
 
 # Introduction
 
-The package is designed to operate one function to run all the algorithm at once. The main steps of the algorithm are the block strategy and the final problem.
+The package is designed to run the BOSO algorithm in one single function, which comprises two steps: block strategy and final problem.
 
-* The block strategy is a pre-processing step in which the problem is divided in subproblems, to eliminate variables which are not selected by BOSO. Usual block size is 10 variables. This process is iterative, until convergence in number of selected variables.
-* Final problem uses all the remaining variables
+* The block strategy is a pre-processing step in which the BOSO MILP (Mixed-Integer Liner Programming) is applied to random subproblems of small dimension, aiming to discard variables for the final problem. The usual block size is 10 variables. This process is done iteratively until convergence.
+
+* Final problem applies the BOSO MILP with all the remaining variables from the block strategy.
 
 ![**Figure 1.** Flow diagram of *BOSO*.  ](flowchart.png)
 
-Figure 1 summarizes the *BOSO* algorithm. An example dataset with 7 features is split into training and validation sets. Green boxes represent optimal selected features for a specific K value. For example, for K=2, the subset of features that minimizes the validation error is {X3, X6}. The problem of selecting the best subset of features of length K is formulated via mixed-integer quadratic programming (MIQP) and solved using IBM ILOG CPLEX This process is repeated for each K value until an information criterion, in this case the extended Bayesian Information Criterion (eBIC), is not further improved. Minimal eBIC is found in this example for K=2. The final model is derived from Ridge regression with only these two selected variables.
+Figure 1 summarizes the *BOSO* algorithm. An example dataset with 7 features is split into training and validation sets. Green boxes represent optimal selected features for a Specific K value. For example, for K=2, the subset of features that minimizes the validation error is {X3, X6}. The problem of selecting the best subset of features of length K is formulated via mixed-integer quadratic programming (MIQP) and solved using IBM ILOG CPLEX This process is repeated for each K value until an information criterion, in this case the extended Bayesian Information Criterion (eBIC), is not further improved. Minimal eBIC is found in this example for K=2. The final model is derived from Ridge regression with only these two selected variables. 
 
-# Different parameters that can be changed in the algortihm.
+# Different parameters that can be changed in the BOSO algortihm.
 
-Function `BOSO` has a lots of parameters that can be changed:
+Function `BOSO` has a number of parameters that can be changed:
 
-* *IC*  is information criterion to be used. Options are AIC, BIC and eBIC
-* *IC.blocks*  is information criterion to be used in the block strategy step. By default, it is the same as the *IC*, but it can be changed. Additionally, if *IC* is eBIC, *IC.blocks* will be BIC.
-* *nlambda* The number of lambda values, same as in `glmnet`.
-* *nlambda.blocks* The number of lambda values, same as in `glmnet`. This parameter is by default 10, instead of 100, because here it is not necessary to obtain the best value for the betas, but to eliminate variables.
-* *TH_IC* is the ratio over one that the information criterion must 
-increase to be STOP. Default is 1e-3. Due to numerical tolerances, it is neccesary to set a threshold in order to detect the minimum value.
+* *IC*  is the information criterion to be used. Options are AIC, BIC and eBIC
+* *IC.blocks*  is the information criterion to be used in the block strategy step. By default, it is the same as the *IC*, but it can be changed. Additionally, if *IC* is eBIC, *IC.blocks* will be BIC.
+* *nlambda* The number of lambda values in the final problem. Default value 100.
+* *nlambda.blocks* The number of lambda values in the blocks strategy. Default value 10, in order to alleviate the block strategy.
+* *TH_IC* Threshold for the stopping criterion in K selection. Default value 1e-3. We have a worse model if the IC is at least 0.1% higher than the current solution.  
 
-On the other hands, there are some parameters that are identical to the ones in the `glmnet` function: *lambda.min.ratio*,  *lambda*, *intercept*, *standardize* and *dfmax*.
+On the other hand, there are some parameters that are identical to the ones found in the `glmnet` function: *lambda.min.ratio*,  *lambda*, *intercept*, *standardize* and *dfmax*.
 
-Finally, some of the parameters that are solver specific:
-* *Threads* CPLEX parameter, number of cores that CPLEX is allowed to use. Default is 0 (automatic).
-* *timeLimit* CPLEX parameter, time limit per problem provided to CPLEX.Default is 1e75 (infinite time).
+Finally, some of the parameters  are solver-specific:
+
+* *Threads* CPLEX parameter that defines the number of cores to be used. Default is 0 (automatic).
+* *timeLimit* CPLEX parameter that defines the time limit per problem provided to CPLEX.Default value is 1e75 (infinite time).
 * *warmstart* warmstart for CPLEX or use a different problem for each k. Default is False.
 
 
 
-# Example: high-5 scenario of main paper figures.
+# Example: High-5 scenario discussed in the BOSO article
 
-Given a synthetic data set (see Methods section in the paper), we can evaluate the performance as a feature selection method. First of all, we set the parameters for the generation of the synthetic data:
+Given a synthetic data set (see Methods section in the article), we evaluate the capacity of BOSO to extract the features that are related with the response variable. First o, we set the parameters for the generation of  synthetic data:
 
 ```{r define_data, eval=TRUE}
 
 # Set some overall simulation parameters
-n = 100; p = 10  # Size of training set, and number of variables
+n = 100;          # Size of training set
 nval = n          # Size of validation set
+p = 10;           # Number of variables
+s = 5             # Number of nonzero coefficients
+beta.type = 1     # Type of coefficiente structure
+rho.vec = 0.35    # Variable autocorrelation level
+snr.vec = exp(seq(log(0.05),log(6),length=10)) # Signal-to-noise ratios 
 nrep = 10          # Number of repetitions for a given setting
 seed = 0          # Random number generator seed
-s = 5             # Number of nonzero coefficients
-beta.type = 1     # Simulation settings to consider
-rho.vec = 0.35    # Pairwise variable correlation
-snr.vec = exp(seq(log(0.05),log(6),length=10)) # Signal-to-noise ratios 
 stem = paste0("sim.n",n,".p",p)
 
 ```
 
-Now we are going to define the functions that are going to be evaluated. We are also inclusing Fordward Stepwise, Lasso and Relaxed lasso.
+Benchmarked methods are defined: Forward Stepwise, Lasso, Relaxed lasso and BOSO.
 
 ```{r define_funs, eval=TRUE}
 
-# Regression functions: lasso, forward stepwise, and best subset selection
+# Regression functions: lasso, forward stepwise and BOSO
 reg.funs = list()
 
 reg.funs[["Forward stepwise"]] = function(x,y) fs(x,y,intercept=FALSE, max=min(n,p))
@@ -142,7 +144,7 @@ reg.funs[["BOSO - eBIC"]] <- function(x,y,xval,yval) BOSO(x,y,xval,yval,
 ```
 
 
-We have adapted the `sim.master`function from the *bestsubset* library function to evaluate the all the methods. `sim.master` is a function prepared to obtain all the scores from the different methods
+We have adapted the `sim.master`function from the *bestsubset* library function to assess the different methods. 
 
 ```{r aux_fun_1, eval=TRUE, echo=FALSE}
 sim.master = function(n, p, nval, reg.funs, nrep=50, seed=NULL, verbose=FALSE,
@@ -293,9 +295,9 @@ for (i in 1:length(snr.vec)) {
 ```
 
 
-## Comparison of BOSO vs rest of algorithms
+## Comparison of BOSO with other methods
 
-Finally, the next code chunk shows the comparison of BOSO(eBIC) with some of the most widely used algorithms in the literature: Lasso, Relaxed lasso and Forward Stepwise.
+Finally, the next part of the code shows the comparison of BOSO-eBIC with some of the most widely used algorithms in the literature: Lasso, Relaxed lasso and Forward Stepwise.
 
 
 ```{r plot_function, eval=TRUE, echo=FALSE}
@@ -454,7 +456,7 @@ ggarrange(plotlist = plot.BOSO, ncol = 2, nrow = 2, common.legend = T, legend = 
 
 ## Comparison of BOSO with different information criteria
 
-The following chunk of code is designed to compare the performance of the BOSO algortihm using different information criteria. The options available are AIC, BIC and eBIC.
+The following part of code is designed to compare the performance of the BOSO algortihm using different information criteria. The options available are AIC, BIC and eBIC.
 
 ```{r plot_comparison_BOSOvsBOSO, eval=TRUE, warning=FALSE}
 

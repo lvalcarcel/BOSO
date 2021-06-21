@@ -1,7 +1,7 @@
 Package: BOSO
 Type: Package
 Title: Bilevel Optimization Selector Operator
-Version: 0.0.0.9016
+Version: 0.0.0.9017
 Date: 2021-06-15
 Authors@R: c(person("Luis V. Valcarcel", "Developer", role = c("aut", "cre"),
                      email = "lvalcarcel@tecnun.es"),
