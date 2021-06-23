@@ -107,11 +107,11 @@ increase to be STOP. Default is 1e-3.}
 }
 \description{
 Fit a ridge linear regression by a feature selection model 
-conducted by BOSO MILP. The package cplexAPI is neccesary to run it.
+conducted by BOSO MILP. The package cplexAPI is necessary to run it.
 }
 \details{
-Compute the BOSO for use one block. This function calls \code{\link{cplexAPI}}
-to solve the optimization problem
+Compute the BOSO for use one block. This function calls cplexAPI to solve
+the optimization problem
 }
 \author{
 Luis V. Valcarcel

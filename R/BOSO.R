@@ -1,7 +1,7 @@
 #' BOSO and associates functions
 #'
-#' Compute the BOSO for use one block. This function calls \code{\link{cplexAPI}}
-#' to solve the optimization problem
+#' Compute the BOSO for use one block. This function calls cplexAPI to solve
+#' the optimization problem
 #' 
 #'
 #' @param x Input matrix, of dimension 'n' x 'p'. This is the data from the 
@@ -78,7 +78,7 @@
 #' @param indexSelected array of pre-selected variables. WARNING: debug feature.
 #' 
 #' @description Fit a ridge linear regression by a feature selection model 
-#' conducted by BOSO MILP. The package cplexAPI is neccesary to run it.
+#' conducted by BOSO MILP. The package cplexAPI is necessary to run it.
 #'
 #' @author Luis V. Valcarcel
 #' @export BOSO
@@ -98,8 +98,8 @@ BOSO = function(x, y, xval, yval,
                 indexSelected = NULL)  {
   
   # Check for cplexAPI package
-  if (!requireNamespace('cplexAPI', quietly = T)) {
-    stop("Package cplexAPI not installed (required here)!")
+  if (!requireNamespace('cplexAPI', quietly = TRUE)) {
+    stop("Package cplexAPI not installed (required here)!", call. = FALSE)
   }
   
   # Check the inputs

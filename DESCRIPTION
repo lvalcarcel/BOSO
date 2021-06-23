@@ -1,32 +1,35 @@
 Package: BOSO
 Type: Package
 Title: Bilevel Optimization Selector Operator
-Version: 0.0.0.9017
+Version: 1.0.2
 Date: 2021-06-15
-Authors@R: c(person("Luis V. Valcarcel", "Developer", role = c("aut", "cre"),
-                     email = "lvalcarcel@tecnun.es"),
-              person("Edurne San Jose-Eneriz", "User", role = "aut"),
-              person("Xabier Cendoya", "Developer", role = c("aut","ctb")),
-              person("Angel Rubio", "User", role = c("aut","ctb")),
-              person("Xabier Agirre", "User", role = "aut"),
-              person("Felipe Prósper", "User", role = "aut"),
-              person("Francisco J. Planes", "Developer", role = c("aut","ctb"),
-                     email = "fplanes@tecnun.es"))
-Description: A novel feature selection algorithm for linear regression called BOSO 
-        (Bilevel Optimization Selector Operator). The main contribution is the 
-        use a bilevel optimization problem to select the variables in the 
-        training problem that minimizes the error in the validation set.
+Authors@R: c(person("Luis V.", "Valcarcel", role = c("aut", "cre", "ctb"),
+                     email = "lvalcarcel@unav.es", comment = c(ORCID = "0000-0003-3769-5419")),
+              person("Edurne", "San Jose-Eneriz", role = "aut", comment = c(ORCID = "0000-0001-5786-5273")),
+              person("Xabier", "Cendoya", role = c("aut","ctb"), comment = c(ORCID = "0000-0001-8401-4087")),
+              person("Angel", "Rubio", role = c("aut","ctb"), comment = c(ORCID = "0000-0002-3274-2450")),
+              person("Xabier", "Agirre", role = "aut", comment = c(ORCID = "0000-0002-6558-9560")),
+              person("Felipe", "Prósper", role = "aut", comment = c(ORCID = "0000-0001-6115-8790")),
+              person("Francisco J.", "Planes", role = c("aut","ctb"),
+                     email = "fplanes@tecnun.es", comment = c(ORCID = "0000-0003-1155-3105")))
+Description: A novel feature selection algorithm for linear regression called 
+    BOSO (Bilevel Optimization Selector Operator). The main contribution is the 
+    use a bilevel optimization problem to select the variables in the training 
+    problem that minimizes the error in the validation set. Preprint available 
+    [Valcarcel, L. V., San Jose-Eneriz, E., Cendoya, X., Rubio, A., Agirre, X., 
+    Prosper, F., & Planes, F. J. (2020). "BOSO: a novel feature selection 
+    algorithm for linear regression with high-dimensional data."" bioRxiv. 
+    <doi:10.1101/2020.11.18.388579>].
 SystemRequirements: IBM ILOG CPLEX (>= 12.1)
 Depends:
-    R (>= 4.0),
+    R (>= 4.0)
 Imports:
-    cplexAPI,
     Matrix,
     MASS,
-    methods,
+    methods
 Suggests: 
+    cplexAPI,
     testthat,
-    bestsubset,
     glmnet,
     knitr,
     rmarkdown,
@@ -34,7 +37,10 @@ Suggests:
     ggpubr,
     dplyr, 
     kableExtra,
-    BiocStyle
+    devtools,
+    BiocStyle,
+    bestsubset
+Additional_repositories: https://github.com/ryantibs/best-subset/
 License: GPL-3 | file LICENSE
 LazyData: true
 RoxygenNote: 7.1.1

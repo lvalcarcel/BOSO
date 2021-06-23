@@ -83,8 +83,8 @@ BOSO.multiple.warmstart = function(x, y, xval, yval, nlambda=100,
                                    TH_IC = 1e-3) {
   
   # Check for cplexAPI package
-  if (!requireNamespace('cplexAPI', quietly = T)) {
-    stop("Package cplexAPI not installed (required here)!")
+  if (!requireNamespace('cplexAPI', quietly = TRUE)) {
+    stop("Package cplexAPI not installed (required here)!", call. = FALSE)
   }
   
   # Check the inputs

@@ -24,7 +24,6 @@ library(BOSO)
 library(dplyr)
 library(kableExtra)
 library(glmnet)
-library(bestsubset)
 library(ggplot2)
 library(ggpubr)
 ```
@@ -41,6 +40,43 @@ install.packages("BOSO")
 ```
 
 Note that it is necessary to have  IBM ILOG CPLEX installed, with a version greater than 12.1, and the *cplexAPI* package, which is used to invoke CPLEX from R environment.
+
+Furthermore, check if packages are installed. Check if bestsubset is installed.  If not, source necessary functions from bestsubset.
+
+```{r, eval=FALSE}
+if (!requireNamespace('cplexAPI', quietly = TRUE)) {
+  testthat::skip('Package cplexAPI not installed (required for this vignette)!\n
+         Install it from CRAN: https://cran.r-project.org/web/packages/cplexAPI/index.html')
+  stop('Package cplexAPI not installed (required for this vignette)!\n
+         Install it from CRAN: https://cran.r-project.org/web/packages/cplexAPI/index.html', call. = FALSE)
+}
+```
+
+```{r, eval=TRUE}
+if (!requireNamespace('bestsubset', quietly = TRUE)) {
+  devtools::source_url("https://raw.githubusercontent.com/ryantibs/best-subset/master/bestsubset/R/fs.R")
+  devtools::source_url("https://raw.githubusercontent.com/ryantibs/best-subset/master/bestsubset/R/lasso.R")
+  devtools::source_url("https://raw.githubusercontent.com/ryantibs/best-subset/master/bestsubset/R/sim.R")
+  enlist <- function (...) 
+  {
+    result <- list(...)
+    if ((nargs() == 1) & is.character(n <- result[[1]])) {
+      result <- as.list(seq(n))
+      names(result) <- n
+      for (i in n) result[[i]] <- get(i)
+    } else {
+      n <- sys.call()
+      n <- as.character(n)[-1]
+      if (!is.null(n2 <- names(result))) {
+        which <- n2 != ""
+        n[which] <- n2[which]
+      }
+      names(result) <- n
+    }
+    result
+  }
+} #else {require(bestsubset)}
+```
 
 # Introduction
 
@@ -258,12 +294,12 @@ sim.master = function(n, p, nval, reg.funs, nrep=50, seed=NULL, verbose=FALSE,
   }
   
   # Save results now (in case of an error that might occur below)
-  out = bestsubset:::enlist(err.train,err.val,err.test,err.null,prop,risk,risk.null,nzs,fpos,
-                            fneg,F1,opt,sigma,runtime)
+  out = enlist(err.train,err.val,err.test,err.null,prop,risk,risk.null,nzs,fpos,
+               fneg,F1,opt,sigma,runtime)
   # if (!is.null(file)) saveRDS(out, file)
   
   # Tune according to validation error, and according to test error
-  out = bestsubset:::choose.tuning.params(out)
+  out = choose.tuning.params(out)
   
   # Save final results
   out = c(out,list(rho=rho,s=s,beta.type=beta.type,snr=snr,call=this.call))
