@@ -75,7 +75,7 @@ if (!requireNamespace('bestsubset', quietly = TRUE)) {
     }
     result
   }
-} #else {require(bestsubset)}
+} else {require("bestsubset")}
 ```
 
 # Introduction
