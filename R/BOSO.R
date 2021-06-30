@@ -121,7 +121,6 @@
 #'
 #' @author Luis V. Valcarcel
 #' @export BOSO
-#' @value BOSO object 
 
 BOSO = function(x, y, xval, yval, 
                 IC = 'eBIC', IC.blocks = NULL,

@@ -101,7 +101,7 @@ each K a different CPLEX object.
 }
 \details{
 Compute the BOSO for use one block. This function calls ILOG IBM CPLEX with 
-cplexAPI to solve the optimization problem
+'cplexAPI' to solve the optimization problem
 }
 \author{
 Luis V. Valcarcel

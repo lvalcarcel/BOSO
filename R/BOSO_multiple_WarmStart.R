@@ -1,7 +1,7 @@
 #' BOSO.single and associates functions
 #'
 #' Compute the BOSO for use one block. This function calls ILOG IBM CPLEX with 
-#' cplexAPI to solve the optimization problem.
+#' 'cplexAPI' to solve the optimization problem.
 #' 
 #'
 #' @param x Input matrix, of dimension 'n' x 'p'. This is the data from the 

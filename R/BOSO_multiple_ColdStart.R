@@ -1,7 +1,7 @@
 #' BOSO.single and associates functions
 #'
 #' Compute the BOSO for use one block. This function calls ILOG IBM CPLEX with 
-#' cplexAPI to solve the optimization problem
+#' 'cplexAPI' to solve the optimization problem
 #' 
 #'
 #' @param x Input matrix, of dimension 'n' x 'p'. This is the data from the 
@@ -73,7 +73,6 @@
 #' @import methods
 #' @author Luis V. Valcarcel
 #' @export BOSO.multiple.coldstart
-#' @value BOSO object 
 
 BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
                                    IC = "eBIC", n.IC = NULL, p.IC = NULL,
