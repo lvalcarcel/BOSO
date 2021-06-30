@@ -18,12 +18,12 @@ in the *BestSubset* package.
 library(BOSO)
 
 ## Load the data prepared for this test
-data("high-5", package = "BOSO")
+data("sim.xy", package = "BOSO")
 
-Xtr <- sim.xy$x
-Ytr <- sim.xy$y
-Xval <- sim.xy$xval
-Yval <- sim.xy$yval
+Xtr <- sim.xy[['high-5']]$x
+Ytr <- sim.xy[['high-5']]$y
+Xval <- sim.xy[['high-5']]$xval
+Yval <- sim.xy[['high-5']]$yval
 
 
 ## Perform BOSO

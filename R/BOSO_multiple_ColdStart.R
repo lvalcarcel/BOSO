@@ -67,10 +67,13 @@
 #'  
 #' @description Function to run a single block BOSO problem, generating for 
 #' each K a different CPLEX object.
+#' 
+#' @return A `BOSO` object.
 #'
 #' @import methods
 #' @author Luis V. Valcarcel
 #' @export BOSO.multiple.coldstart
+#' @value BOSO object 
 
 BOSO.multiple.coldstart = function(x, y, xval, yval, nlambda=100,
                                    IC = "eBIC", n.IC = NULL, p.IC = NULL,

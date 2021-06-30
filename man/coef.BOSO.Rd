@@ -13,6 +13,9 @@
 
 \item{...}{extra arguments for future updates}
 }
+\value{
+A `matrix` object with the corresponding beta values estimated.
+}
 \description{
 This is an equivalent function to the one offered by 
   \code{\link[glmnet]{coef.glmnet}} for extraction of coefficients.

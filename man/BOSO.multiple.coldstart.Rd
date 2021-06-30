@@ -92,6 +92,9 @@ Default is 1e75 (infinite time).}
 \item{TH_IC}{is the ratio over one that the information criterion must 
 increase to be STOP. Default is 1e-3.}
 }
+\value{
+A `BOSO` object.
+}
 \description{
 Function to run a single block BOSO problem, generating for 
 each K a different CPLEX object.

@@ -17,6 +17,8 @@ NULL
 #'   
 #' @description This is an equivalent function to the one offered by 
 #'   \code{\link[glmnet]{coef.glmnet}} for extraction of coefficients.
+#'   
+#' @return A `matrix` object with the corresponding beta values estimated.
 #' 
 #' @export coef.BOSO
 #' @export
@@ -43,6 +45,8 @@ coef.BOSO = function(object, beta0=F, ...) {
 #'   
 #' @description This is an equivalent function to the one offered by 
 #'   \code{\link[glmnet]{coef.glmnet}} for extraction of coefficients.
+#'   
+#' @return A `matrix` object with the corresponding beta values estimated.
 #' 
 #' @export predict.BOSO
 #' @export

@@ -105,13 +105,53 @@ increase to be STOP. Default is 1e-3.}
 
 \item{indexSelected}{array of pre-selected variables. WARNING: debug feature.}
 }
+\value{
+A `BOSO` object which contains the following information: 
+\item{betas}{estimated betas} 
+\item{x}{trianing x set used in BOSO (input parameter)}
+\item{y}{trianing x set used in BOSO (input parameter)}
+\item{xval}{validation x set used in BOSO (input parameter)}
+\item{yval}{validation x set used in BOSO (input parameter)}
+\item{nlambda}{nlambda used by `BOSO` (input parameter)}
+\item{intercept}{if `BOSO` has used intercept (input parameter)}
+\item{standardize}{if `BOSO` has used standardization (input parameter)}
+\item{mx}{Mean value of each variable. 0 if data has not been standarized}
+\item{sx}{Standard deviation value of each variable. 0 if data has not been standarized}
+\item{my}{Mean value of output variable. 0 if data has not been standarized}
+\item{dfmax}{Maximum number of variables set to be used by `BOSO` (input parameter)}
+\item{result.final}{list with the results of the final problem for each K}
+\item{errorTrain}{error in training set in the final problem}
+\item{errorVal}{error in Validation set in the final problem of used by}
+\item{lambda.selected}{lambda selected in the final problem of}
+\item{p}{number of initial variables}
+\item{n}{number of events in the training set}
+\item{nval}{number of events in the validation set}
+\item{blockStrategy}{index of variables which were stored in each iteration by `BOSO` in the block strategy}
+}
 \description{
 Fit a ridge linear regression by a feature selection model 
-conducted by BOSO MILP. The package cplexAPI is necessary to run it.
+conducted by BOSO MILP. The package 'cplexAPI' is necessary to run it.
 }
 \details{
 Compute the BOSO for use one block. This function calls cplexAPI to solve
 the optimization problem
+}
+\examples{
+
+  #This first example is a basic 
+  #example of how to execute BOSO
+  
+  data("sim.xy", package = "BOSO")
+  obj <- BOSO(x = sim.xy[['low']]$x,
+              y = sim.xy[['low']]$y,
+              xval = sim.xy[['low']]$xval,
+              yval = sim.xy[['low']]$yval,
+              IC = 'eBIC',
+              nlambda=50,
+              intercept= 0, standardize = 0,
+              Threads=1, verbose = 3, seed = 2021)
+
+
 }
 \author{
 Luis V. Valcarcel

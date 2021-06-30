@@ -1,7 +1,7 @@
 Package: BOSO
 Type: Package
 Title: Bilevel Optimization Selector Operator
-Version: 1.0.1
+Version: 1.0.3
 Date: 2021-06-15
 Authors@R: c(person("Luis V.", "Valcarcel", role = c("aut", "cre", "ctb"),
                      email = "lvalcarcel@unav.es", comment = c(ORCID = "0000-0003-3769-5419")),
@@ -21,8 +21,8 @@ Description: A novel feature selection algorithm for linear regression called
     algorithm for linear regression with high-dimensional data." bioRxiv. 
     <doi:10.1101/2020.11.18.388579>]. 
     In order to run the vignette, it is recommended to install the 'bestsubset' package,
-    using the following command: <devtools::install_github(repo="ryantibs/best-subset", subdir="bestsubset")>.
-    If you do not have gurobi, run <devtools::install_github(repo="lvalcarcel/best-subset", subdir="bestsubset")>.
+    using the following command: devtools::install_github(repo="ryantibs/best-subset", subdir="bestsubset").
+    If you do not have gurobi, run devtools::install_github(repo="lvalcarcel/best-subset", subdir="bestsubset").
 SystemRequirements: IBM ILOG CPLEX (>= 12.1)
 Depends:
     R (>= 4.0)
@@ -43,7 +43,7 @@ Suggests:
     devtools,
     BiocStyle,
     bestsubset
-License: GPL-3 | file LICENSE
+License: GPL-3
 LazyData: true
 RoxygenNote: 7.1.1
 Encoding: UTF-8

@@ -67,6 +67,9 @@
 #'   
 #' @description Function to run a single block BOSO problem, generating one 
 #' CPLEX object and re-runing it for the different K.
+#' 
+#' @return A `BOSO` object.
+#' 
 #'
 #' @import Matrix
 #' @import methods
