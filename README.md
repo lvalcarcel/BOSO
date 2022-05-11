@@ -6,7 +6,16 @@ We present *BOSO*, an R package to perform feature selection in a linear regress
 ## Installation
 BOSO can be installed from CRAN repository:
 
-`install.packages("BOSO")`
+```{r}
+install.packages("BOSO")
+```
+
+Alternatively, it can be downloaded and installed from github:
+
+```{r}
+library(devtools)
+install_github(repo="lvalcarcel/BOSO", subdir="BOSO")
+```
 
 
 ## Introduction
