@@ -121,7 +121,7 @@ ICscoreCalculation = function(object, IC, n, p) {
   g <- ifelse(p > n, 0.5, 0)
   
   # check all the input
-  if(class(object)!="BOSO") {
+  if(!is(object,"BOSO")) {
     stop("ICscoreCalculation is a hidden function to work with BOSO objects")
   }
   
