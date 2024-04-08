@@ -446,7 +446,7 @@ plot.from.sim = function(sim.list,
     xlab(xlab) + ylab(ylab) + coord_cartesian(ylim=ylim) +
     geom_line(lwd=lwd) + geom_point(pch=pch) +
     # facet_grid(formula(paste(row,"~",col))) +
-    theme_bw() + theme(legend.pos=legend.pos)
+    theme_bw() + theme(legend.position=legend.pos)
   if (!("snr" %in% c(row,col))) {
     # If SNR is being plotted on the x-axis in each plot, then define special
     # x-axis ticks and put the x-axis on a log scale
