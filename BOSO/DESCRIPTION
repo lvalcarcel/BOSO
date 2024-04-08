@@ -44,6 +44,8 @@ Suggests:
     BiocStyle,
     bestsubset
 License: GPL-3
+URL: https://github.com/lvalcarcel/BOSO
+BugReports: https://github.com/lvalcarcel/BOSO/issues
 LazyData: true
 RoxygenNote: 7.1.1
 Encoding: UTF-8
