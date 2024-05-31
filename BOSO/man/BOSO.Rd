@@ -142,6 +142,7 @@ the optimization problem
   #example of how to execute BOSO
   
   data("sim.xy", package = "BOSO")
+  if (requireNamespace('cplexAPI')){
   obj <- BOSO(x = sim.xy[['low']]$x,
               y = sim.xy[['low']]$y,
               xval = sim.xy[['low']]$xval,
@@ -150,7 +151,8 @@ the optimization problem
               nlambda=50,
               intercept= 0, standardize = 0,
               Threads=1, verbose = 3, seed = 2021)
-
+  }
+  
 
 }
 \author{

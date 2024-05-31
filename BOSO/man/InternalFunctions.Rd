@@ -24,13 +24,13 @@ Trace(mat)
 \arguments{
 \item{object}{Fitted 'BOSO' or object}
 
+\item{IC}{information criteria to be used}
+
 \item{n}{Fitted 'BOSO' object}
 
 \item{p}{Fitted 'BOSO'  object}
 
-\item{metric}{information criteria to be used}
-
-\item{matrix}{a numeric matrix}
+\item{mat}{a numeric matrix}
 }
 \value{
 Internal outputs

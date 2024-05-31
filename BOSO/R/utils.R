@@ -104,7 +104,7 @@ standardize = function(x, y, intercept=T, normalize=T, mx=NULL, my=NULL, sx=NULL
 #' 
 #' @param object Fitted 'BOSO' or object
 #' 
-#' @param metric information criteria to be used
+#' @param IC information criteria to be used
 #' 
 #' @param n Fitted 'BOSO' object
 #' 
@@ -189,7 +189,7 @@ ICscoreCalculation = function(object, IC, n, p) {
 
 #' Trace convenience function
 #' 
-#' @param matrix a numeric matrix
+#' @param mat a numeric matrix
 #' 
 
 #' @rdname InternalFunctions
