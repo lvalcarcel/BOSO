@@ -35,7 +35,7 @@ library(ggpubr)
 # Installation
 BOSO can be installed from CRAN repository:
 
-```{r, eval=FALSE}
+```{r Load_BOSO, eval=FALSE}
 install.packages("BOSO")
 ```
 
@@ -43,7 +43,7 @@ Note that it is necessary to have  IBM ILOG CPLEX installed, with a version grea
 
 Furthermore, check if packages are installed. Check if bestsubset is installed.  If not, source necessary functions from bestsubset.
 
-```{r, eval=FALSE}
+```{r check_requirements, eval=FALSE}
 if (!requireNamespace('cplexAPI', quietly = TRUE)) {
   testthat::skip('Package cplexAPI not installed (required for this vignette)!\n
          Install it from CRAN: https://cran.r-project.org/web/packages/cplexAPI/index.html')
@@ -52,7 +52,7 @@ if (!requireNamespace('cplexAPI', quietly = TRUE)) {
 }
 ```
 
-```{r, eval=TRUE}
+```{r check_requirements_2, eval=TRUE}
 if (!requireNamespace('bestsubset', quietly = TRUE)) {
   devtools::source_url("https://raw.githubusercontent.com/ryantibs/best-subset/master/bestsubset/R/fs.R")
   devtools::source_url("https://raw.githubusercontent.com/ryantibs/best-subset/master/bestsubset/R/lasso.R")
@@ -526,7 +526,7 @@ ggarrange(plotlist = plot.BOSO, ncol = 2, nrow = 2, common.legend = T, legend = 
 
 
 # Session Information
-```{r}
+```{r sessionInfo}
 sessionInfo()
 ```
 
